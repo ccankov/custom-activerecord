@@ -4,7 +4,7 @@ require_relative 'relation'
 
 module Searchable
   def where(params)
-    Relation.new(table_name, params, self)
+    Relation.new(params, self)
   end
 end
 

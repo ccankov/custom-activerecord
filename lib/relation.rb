@@ -1,17 +1,16 @@
 require_relative 'db_connection'
-require 'byebug'
 
 class Relation
-  def initialize(table_name, params, klass)
+  def initialize(params, klass)
+    @data = nil
     @klass = klass
-    @table_name = table_name
     @params = params
     where_clause = params.map { |key, _| "#{key} = ?" }.join(' AND ')
     @query = <<-SQL
       SELECT
         *
       FROM
-        #{table_name}
+        #{@klass.table_name}
       WHERE
         #{where_clause}
     SQL
@@ -19,7 +18,7 @@ class Relation
 
   def where(params)
     params = @params.merge(params)
-    self.class.new(@table_name, params, @klass)
+    self.class.new(params, @klass)
   end
 
   def method_missing(method_name, *args, &block)
@@ -27,10 +26,12 @@ class Relation
   end
 
   def load
+    return @data if @data
+    puts "Running: #{@query.delete("\n")}"
     records = DBConnection.execute(<<-SQL, *@params.values)
       #{@query}
     SQL
     return [] if records.length.zero?
-    @klass.parse_all(records)
+    @data = @klass.parse_all(records)
   end
 end
