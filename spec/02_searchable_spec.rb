@@ -38,7 +38,17 @@ describe 'Searchable' do
     expect(human.house_id).to eq(1)
   end
 
+  it "#where calls can stack" do
+    humans = Human.where(fname: 'Matt').where(house_id: 1)
+    expect(humans.length).to eq(1)
+
+    human = humans[0]
+    expect(human.fname).to eq('Matt')
+    expect(human.house_id).to eq(1)
+  end
+
   it '#where returns [] if nothing matches the criteria' do
-    expect(Human.where(fname: 'Nowhere', lname: 'Man')).to eq([])
+    humans = Human.where(fname: 'Nowhere', lname: 'Man')
+    expect(humans.length).to eq(0)
   end
 end
