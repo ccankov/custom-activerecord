@@ -8,8 +8,7 @@ module Associatable
     define_method(name) do
       through_options = self.class.assoc_options[through_name]
       source_options = through_options.model_class.assoc_options[source_name]
-      middle_obj = self.send(through_name)
-      records = DBConnection.execute(<<-SQL, middle_obj.send(source_options.send(:primary_key)))
+      records = DBConnection.execute(<<-SQL, send(through_options.send(:foreign_key)))
         SELECT
           #{source_options.table_name}.*
         FROM
